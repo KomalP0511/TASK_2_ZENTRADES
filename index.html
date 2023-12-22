@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            display: grid;
+            grid-template-areas: 
+            "head head head"
+            "side content content"
+            "div div div"
+            "foot foot foot";
+            background-color: #F9F9F9;
+            
+        }
+        header{
+            grid-area: head;
+            
+            
+        }
+        article{             
+            grid-area:content;       
+            width: 100%;
+             height: 300px;
+            margin: auto;
+            box-sizing: border-box;
+             background-color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        aside{
+            grid-area: side; 
+            width: 100%;
+             height: 300px;
+            margin: auto;
+            box-sizing: border-box;
+             background-color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            
+             
+        }
+        div{
+            grid-area:div;
+            width: 100%;
+             height: 300px;
+            border:2px;
+            margin: auto;
+            margin-left: 10px;
+            margin-right: 10px;
+            box-sizing: border-box;
+             background-color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            
+        }
+        footer{
+            grid-area:foot;
+        }
+        select {
+      width: 55%;
+      padding: 9px;
+      margin:auto;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+   
+    .step2, .step1{
+        padding-left: 50px;
+        text-decoration: 2px solid;
+    }
+  label{
+        padding-left:95px ;
+    }
+     .filechosen{
+        padding-left: 90px;
+     }
+    
+
+    .box {
+      background-color: #fff;
+      padding: 10px;
+    
+      width: 250px;
+      margin: 10px;
+      float: left;
+      height: 150px;
+    }
+
+    button {
+      display: block;
+      margin-left: 200px;
+     
+     
+      cursor: pointer;
+    }
+
+  .button-container{
+        display: flex;
+       float:right;
+        margin-left: 70%;
+    }
+
+    .next-button {
+      padding: 10px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 100px; /* Adjust the margin between buttons */
+    }
+
+    .cancel-button {
+      padding: 10px;
+      background-color: none;
+      cursor: pointer;
+      margin-left: 0;
+      border: none;
+      margin-right: 80px; /* Adjusted margin to 0 */
+    }
+    </style>
+</head>
+<body>
+    <header><p>Import Products</p></header>
+
+    <article>
+           <p class="step2">  <b>Step 2:</b> Specify the Product</p> 
+        <label for="fileType">File Type</label>
+        <select id="fileType">
+            <option value="json">csv</option>
+            <option value="csv">json</option>
+        </select>
+        <br>
+        <label for="encoding">Character Encoding</label>
+        <select id="encoding">
+            <option value="UTF-8">UTF-8</option>
+            <option value="UTF-16">UTF-16</option>
+            <!-- Add more options as needed -->
+        </select>
+        <br>
+        <label for="delimiter">Delimiter</label>
+        <select id="delimiter">
+            <option value="comma">comma</option>
+            <option value="tab">Tab</option>
+            <!-- Add more options as needed -->
+        </select>
+        <br>
+        <label>
+            <input type="checkbox" id="hasHeader"> Has Header
+        </label>
+    </article>
+
+
+    <aside>
+        <p class="step1"><b>Step 1:</b> Select File</p>
+        <input class="filechosen" type="file" id="file" accept=".json, .csv">
+        <p class="filechosen">Supported file type(s): CSV, JSON</p>
+    </aside>
+
+
+    <div>
+        <p>Step 3: Display Handling</p>
+        <p>Select the fields to be displayed</p>
+        <div class="box" id="availableFieldsBox">
+            <p>Available Fields</p>
+            <select id="availableFields" multiple></select>
+        </div>
+        
+        <div class="box" id="displayedFieldsBox">
+            <p>Fields as Displayed</p>
+            <select id="displayedFields" multiple></select>
+        </div>
+
+
+        <script>
+            // Fetch data from the API
+            async function fetchData() {
+                try {
+                    const response = await fetch('https://s3.amazonaws.com/open-to-cors/assignment.json');
+                    const data = await response.json();
+
+                    // Assuming "products" is the key in the response
+                    const products = data.products;
+
+                    // Populate Available Fields select box with data from the API
+                    const availableFieldsSelect = document.getElementById('availableFields');
+                    Object.keys(products).forEach((productId) => {
+                        const product = products[productId];
+                        const option = document.createElement('option');
+                        option.value = productId;
+                        option.text = `${product.title} - $${product.price}`;
+                        availableFieldsSelect.add(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            }
+
+            fetchData();
+
+            // Function to move selected options between select boxes
+            function moveOptions(sourceSelect, targetSelect) {
+                const selectedOptions = Array.from(sourceSelect.selectedOptions);
+                selectedOptions.forEach((option) => {
+                    targetSelect.add(option);
+                    sourceSelect.remove(option.index);
+                });
+            }
+
+            // Button click event handlers
+            document.getElementById('availableFieldsBox').innerHTML += '<button onclick="moveOptions(availableFields, displayedFields)">>></button>';
+            document.getElementById('displayedFieldsBox').innerHTML += '<button onclick="moveOptions(displayedFields, availableFields)"><<</button>';
+        </script>
+        
+       
+    </div>
+    <footer class="button-container">
+       
+            <button class="next-button">Next</button>
+            <button class="cancel-button" style="color: red;">Cancel</button>
+      
+    </footer>
+    
+</body>
+</html>
